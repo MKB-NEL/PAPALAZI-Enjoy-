@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papalazist Account</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            font-family: 'Comfortaa', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            box-sizing: border-box;
+        }
+        .container h1 {
+            color: blue;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .input-box {
+            margin-top: 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-box input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            box-sizing: border-box;
+        }
+        .input-box button {
+            margin-top: 20px;
+            width: 150px;
+            padding: 10px;
+            font-size: 16px;
+            color: white;
+            background-color: blue;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .input-box button:hover {
+            background-color: darkblue;
+        }
+        .input-box .show-password {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: blue;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .input-box .show-password2 {
+            position: absolute;
+            right: 20px;
+            top: 80%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: blue;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .input-box .show-password:hover {
+            color: rgb(89, 89, 243);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Enter your password to enter the Papalazist Account.</h1>
+        <div class="input-box">
+            <input type="password" id="password" placeholder="Enter your password">
+            <button class="show-password" onclick="togglePasswordVisibility()">Show password</button>
+            <button class="show-password2" onclick="location.href='index.html'">BACK</button>
+            <button onclick="checkPassword()">Check</button>
+        </div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            if (password === 'PAPACOSTA') {
+                window.location.href = 'papalazist.html';
+            } else {
+                alert('Incorrect password. Please try again.');
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const showButton = document.querySelector('.show-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                showButton.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                showButton.textContent = 'Show';
+            }
+        }
+    </script>
+</body>
+</html>
