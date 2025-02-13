@@ -29,6 +29,19 @@
         .header .current-date {
             font-size: 18px;
         }
+        .register-button {
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid white;
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .register-button:hover {
+            background-color: lightblue;
+            color: white;
+        }
         .search-bar {
             display: flex;
             justify-content: center;
@@ -150,7 +163,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-      import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+      import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove, query, where, getDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
       import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
       
@@ -184,9 +197,15 @@
       const currentDate = new Date();
       currentDateElement.textContent = currentDate.toLocaleDateString();
 
-      async function fetchPosts() {
+      async function fetchPosts(searchQuery = '') {
         const postsContainer = document.getElementById('postsContainer');
-        const querySnapshot = await getDocs(collection(db, 'POST'));
+        let postsQuery = collection(db, 'POST');
+        
+        if (searchQuery) {
+          postsQuery = query(postsQuery, where('title', '>=', searchQuery), where('title', '<=', searchQuery + '\uf8ff'));
+        }
+
+        const querySnapshot = await getDocs(postsQuery);
         const posts = [];
         querySnapshot.forEach((doc) => {
           const post = doc.data();
@@ -304,15 +323,24 @@
         document.getElementById('oldButton').addEventListener('click', () => displayPosts(posts, 'old'));
         document.getElementById('trendsButton').addEventListener('click', () => displayPosts(posts, 'all'));
       };
+
+      document.getElementById('searchInput').addEventListener('input', async (e) => {
+        const searchQuery = e.target.value;
+        const posts = await fetchPosts(searchQuery);
+        displayPosts(posts, 'all');
+      });
     </script>
 </head>
 <body>
     <div class="header">
         <div class="title">P a p a l a z i News</div>
-        <div class="current-date" id="currentDate"></div>
+        <div class="current-date">
+            <a href="sign.html" class="register-button">Register</a>
+            <span id="currentDate"></span>
+        </div>
     </div>
     <div class="search-bar">
-        <input type="text" placeholder="Search...">
+        <input type="text" id="searchInput" placeholder="Search...">
     </div>
     <div class="button-group">
         <button id="newButton">NEW</button>
