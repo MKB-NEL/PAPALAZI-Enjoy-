@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Post</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            font-family: 'Comfortaa', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            width: 100%;
+            background-color: blue;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .title {
+            font-family: 'Comfortaa', 'Arial', sans-serif;
+            font-weight: 500;
+            font-size: 24px;
+        }
+        .post-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+        }
+        .post-container img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .post-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: blue;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .post-text {
+            font-size: 16px;
+            color: black;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        .post-timestamp {
+            font-size: 14px;
+            color: gray;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: 2px solid blue;
+            background-color: white;
+            color: blue;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: lightblue;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <div class="title">P a p a l a z i News</div>
+    </div>
+    <div class="post-container">
+        <img id="postImage" src="" alt="Post Image">
+        <div class="post-title" id="postTitle"></div>
+        <div class="post-text" id="postText"></div>
+        <div class="post-timestamp" id="postTimestamp"></div>
+        <button class="back-button" onclick="goBack()">Back to News</button>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const post = JSON.parse(localStorage.getItem('post'));
+          if (post) {
+              document.getElementById('postImage').src = post.imageUrl;
+              document.getElementById('postTitle').textContent = post.title;
+              document.getElementById('postText').textContent = post.info;
+              document.getElementById('postTimestamp').textContent = `Posted on: ${new Date(post.timestamp.seconds * 1000).toLocaleDateString()} ${new Date(post.timestamp.seconds * 1000).toLocaleTimeString()}`;
+          }
+      });
+
+      function goBack() {
+          window.location.href = 'index.html';
+      }
+    </script>
+</body>
+</html>
