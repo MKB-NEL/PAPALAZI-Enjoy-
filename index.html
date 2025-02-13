@@ -111,6 +111,22 @@
         .post-timestamp {
             font-size: 12px;
             color: gray;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .like-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .like-icon {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .like-count {
+            font-size: 14px;
+            color: black;
         }
         footer {
             background-color: blue;
@@ -132,39 +148,11 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="header">
-        <div class="title">P a p a l a z i   News</div>
-        <div class="current-date" id="currentDate"></div>
-    </div>
-    <div class="search-bar">
-        <input type="text" placeholder="Search...">
-    </div>
-    <div class="button-group">
-        <button id="newButton">NEW</button>
-        <button id="trendsButton">TRENDS</button>
-        <button id="oldButton">OLD</button>
-    </div>
-
-    <div class="posts-container" id="postsContainer">
-        <!-- Posts will be dynamically added here -->
-    </div>
-
-    <footer>
-        &copy; 2025 Papalazi | by btem & COSTA | All rights reserved.
-        <div class="footer-images">
-            <a href="https://www.instagram.com/_papalazi_/"><img src="https://i.pinimg.com/736x/19/42/d5/1942d5deb0f788e6228054cd92767ff6.jpg" alt="Footer Image 1"></a>
-            <a href="login.html"><img src="https://i.pinimg.com/736x/82/e4/51/82e451bede78d774d2aebf37eac00712.jpg" alt="Footer Image 2"> </a> 
-        </div>
-    </footer>
-
-    <div id="notification" class="notification"></div>
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-      import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+      import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
       
       const firebaseConfig = {
         apiKey: "AIzaSyBRxM7fAfKphRvdj_16NKV3B0hyidCEnrc",
@@ -180,6 +168,17 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      let currentUser = null;
+
+      onAuthStateChanged(auth, (user) => {
+          if (user) {
+              currentUser = user.uid;
+          } else {
+              currentUser = null;
+          }
+      });
 
       const currentDateElement = document.getElementById('currentDate');
       const currentDate = new Date();
@@ -195,6 +194,29 @@
           posts.push(post);
         });
         return posts;
+      }
+
+      async function toggleLike(postId) {
+        if (!currentUser) {
+            alert('You need to be logged in to like a post.');
+            return;
+        }
+
+        const postDoc = doc(db, 'POST', postId);
+        const postSnapshot = await getDoc(postDoc);
+        const post = postSnapshot.data();
+
+        if (post.likes.includes(currentUser)) {
+            await updateDoc(postDoc, {
+                likes: arrayRemove(currentUser)
+            });
+        } else {
+            await updateDoc(postDoc, {
+                likes: arrayUnion(currentUser)
+            });
+        }
+
+        displayPosts(await fetchPosts(), 'all');
       }
 
       function displayPosts(posts, filter) {
@@ -243,7 +265,28 @@
 
         const postTimestamp = document.createElement('div');
         postTimestamp.classList.add('post-timestamp');
-        postTimestamp.textContent = `Posted on: ${new Date(post.timestamp.seconds * 1000).toLocaleDateString()} ${new Date(post.timestamp.seconds * 1000).toLocaleTimeString()}`;
+        
+        const likeContainer = document.createElement('div');
+        likeContainer.classList.add('like-container');
+        
+        const likeIcon = document.createElement('span');
+        likeIcon.classList.add('like-icon');
+        likeIcon.innerHTML = '❤️';
+        likeIcon.style.color = post.likes && post.likes.includes(currentUser) ? 'red' : 'black';
+        likeIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleLike(post.id);
+        });
+
+        const likeCount = document.createElement('span');
+        likeCount.classList.add('like-count');
+        likeCount.textContent = post.likes ? post.likes.length : 0;
+
+        likeContainer.appendChild(likeIcon);
+        likeContainer.appendChild(likeCount);
+
+        postTimestamp.appendChild(likeContainer);
+        postTimestamp.appendChild(document.createTextNode(`Posted on: ${new Date(post.timestamp.seconds * 1000).toLocaleDateString()} ${new Date(post.timestamp.seconds * 1000).toLocaleTimeString()}`));
 
         postContent.appendChild(postTitle);
         postContent.appendChild(postText);
@@ -262,5 +305,33 @@
         document.getElementById('trendsButton').addEventListener('click', () => displayPosts(posts, 'all'));
       };
     </script>
+</head>
+<body>
+    <div class="header">
+        <div class="title">P a p a l a z i News</div>
+        <div class="current-date" id="currentDate"></div>
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search...">
+    </div>
+    <div class="button-group">
+        <button id="newButton">NEW</button>
+        <button id="trendsButton">TRENDS</button>
+        <button id="oldButton">OLD</button>
+    </div>
+
+    <div class="posts-container" id="postsContainer">
+        <!-- Posts will be dynamically added here -->
+    </div>
+
+    <footer>
+        &copy; 2025 Papalazi | by btem & COSTA | All rights reserved.
+        <div class="footer-images">
+            <a href="https://www.instagram.com/_papalazi_/"><img src="https://i.pinimg.com/736x/19/42/d5/1942d5deb0f788e6228054cd92767ff6.jpg" alt="Footer Image 1"></a>
+            <a href="login.html"><img src="https://i.pinimg.com/736x/82/e4/51/82e451bede78d774d2aebf37eac00712.jpg" alt="Footer Image 2"> </a> 
+        </div>
+    </footer>
+
+    <div id="notification" class="notification"></div>
 </body>
 </html>
