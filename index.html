@@ -133,7 +133,7 @@
             align-items: center;
             gap: 5px;
         }
-        .like-icon {
+        .like-icon, .share-icon {
             font-size: 20px;
             cursor: pointer;
         }
@@ -225,7 +225,7 @@
         const postSnapshot = await getDoc(postDoc);
         const post = postSnapshot.data();
 
-        if (post.likes.includes(currentUser)) {
+        if (post.likes && post.likes.includes(currentUser)) {
             await updateDoc(postDoc, {
                 likes: arrayRemove(currentUser)
             });
@@ -301,8 +301,20 @@
         likeCount.classList.add('like-count');
         likeCount.textContent = post.likes ? post.likes.length : 0;
 
+        const shareIcon = document.createElement('span');
+        shareIcon.classList.add('share-icon');
+        shareIcon.innerHTML = '🔗';
+        shareIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const shareURL = `${window.location.origin}/view.html?postId=${post.id}`;
+            navigator.clipboard.writeText(shareURL).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        });
+
         likeContainer.appendChild(likeIcon);
         likeContainer.appendChild(likeCount);
+        likeContainer.appendChild(shareIcon);
 
         postTimestamp.appendChild(likeContainer);
         postTimestamp.appendChild(document.createTextNode(`Posted on: ${new Date(post.timestamp.seconds * 1000).toLocaleDateString()} ${new Date(post.timestamp.seconds * 1000).toLocaleTimeString()}`));
