@@ -59,6 +59,16 @@
             background-color: lightblue;
             color: white;
         }
+        .message {
+            margin-top: 10px;
+            color: red;
+        }
+        .loading {
+            display: none;
+            margin-top: 10px;
+            font-size: 14px;
+            color: blue;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
@@ -85,24 +95,35 @@
             document.getElementById('formTitle').textContent = isSignUp ? 'Sign Up' : 'Sign In';
             document.getElementById('submitButton').textContent = isSignUp ? 'Sign Up' : 'Sign In';
             document.getElementById('toggleButton').textContent = isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up";
+            document.getElementById('message').textContent = '';
         });
 
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const messageElement = document.getElementById('message');
+            const loadingElement = document.getElementById('loading');
+
+            loadingElement.style.display = 'block';
+            messageElement.textContent = '';
 
             try {
                 if (isSignUp) {
                     await createUserWithEmailAndPassword(auth, email, password);
-                    alert('Sign Up Successful');
+                    messageElement.textContent = 'Sign Up Successful';
+                    messageElement.style.color = 'green';
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
-                    alert('Sign In Successful');
+                    messageElement.textContent = 'Sign In Successful';
+                    messageElement.style.color = 'green';
                     window.location.href = 'index.html';
                 }
             } catch (error) {
-                alert(error.message);
+                messageElement.textContent = error.message;
+                messageElement.style.color = 'red';
+            } finally {
+                loadingElement.style.display = 'none';
             }
         });
     </script>
@@ -116,6 +137,8 @@
             <button type="submit" id="submitButton">Sign In</button>
         </form>
         <button id="toggleButton" class="toggle-button">Don't have an account? Sign Up</button>
+        <div id="message" class="message"></div>
+        <div id="loading" class="loading">Loading...</div>
     </div>
 </body>
 </html>
